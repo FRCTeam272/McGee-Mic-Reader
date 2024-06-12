@@ -1,0 +1,10 @@
+[package]
+name = "Mic-Reader"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cpal = "0.15.3"
+dasp = "0.11.0"
+queues = "1.1.0"
+rust_gpiozero = "0.2.0"
