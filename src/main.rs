@@ -1,27 +1,31 @@
-#[macro_use]
-extern crate queues;
-
-use queues::*;
+use std::collections::VecDeque;
 use rust_gpiozero as pi;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use dasp::sample::{Sample};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
+const ON_PI: bool = false;
+
 fn main() {
+
+    // grab the default audio devices
     let host = cpal::default_host();
     let device = host.default_input_device().expect("Failed to get default input device");
     let config = device.default_input_config().expect("Failed to get default input config");
 
+    // build the format as a float to represent the decidable, this are used for the configureation
     let sample_format = config.sample_format();
     let sample_rate = config.sample_rate().0 as f32;
     let channels = config.channels() as usize;
 
+    // this is some math stuff regarding audio inputs
     let max_amplitude = Arc::new(Mutex::new(0.0));
 
     let max_amplitude_clone = Arc::clone(&max_amplitude);
     let err_fn = |err| eprintln!("An error occurred on stream: {}", err);
 
+    // build out streams
     let stream = match sample_format {
         cpal::SampleFormat::F32 => device.build_input_stream(
             &config.into(),
@@ -55,13 +59,16 @@ fn main() {
 
     stream.play().expect("Failed to play stream");
 
-    let mut last_print = Instant::now();
-    let mut base_line_container:Vec<f32> = vec![];
-    let mut base_line_average: f32 = 0.0;
+
+    let mut last_print = Instant::now(); // timestamp of the most recent iteration of grab
+    let mut base_line_container:Vec<f32> = vec![]; // array of baseline readings
+    let mut base_line_average: f32 = 0.0; // eventually holds the average of the baseline
     let amount_to_capture: i32 = 100;
-    let mut decidable_buffer: Queue<f32> = queue![];
-    let safe_range = 50.0;
+
+    let mut decidable_buffer: VecDeque<f32> = VecDeque::new(); // holds and updates the last 10, so we know to go when good
+    let mut safe_range = 0.0; // safe range is +/- std of the baseline and is calculated later
     loop {
+        // audio math I guess
         let amplitude = *max_amplitude.lock().unwrap();
         let db_level = if amplitude > 0.0 {
             20.0 * amplitude.log10()
@@ -69,53 +76,62 @@ fn main() {
             f32::NEG_INFINITY
         };
 
-        if last_print.elapsed() >= Duration::from_millis(100) {
+        if last_print.elapsed() >= Duration::from_millis(100) { // only fires every 100 milliseconds
 
             if base_line_container.len() < amount_to_capture as usize{
+                // first if statement will build the sample vec, update the last pull and then hop out of the loop
                 println!("Running base_capture {}", base_line_container.len());
+                last_print = Instant::now();
                 if db_level == f32::NEG_INFINITY { continue } // thread failed to capture any audio
                 base_line_container.push(db_level);
-                last_print = Instant::now();
                 continue
             } else if base_line_container.len() < (amount_to_capture + 1) as usize{
+                // on the final iteration of the loop it also calcualtes all averages and std we'll need
                 base_line_container.push(db_level);
                 let sum: f32 = base_line_container.iter().sum();
                 base_line_average =  sum / base_line_container.len() as f32;
+                safe_range = calculate_variance(base_line_container.clone(), base_line_average).sqrt();
                 last_print = Instant::now();
                 continue
             }
-            if decidable_buffer.size() < 10{
-                println!("Building Buffer {}", decidable_buffer.size());
-                _ = decidable_buffer.add(db_level);
+            if decidable_buffer.len() < 10{
+                // this final if will build the inital buffer
+                println!("Building Buffer {}", decidable_buffer.len());
+                _ = decidable_buffer.push_back(db_level);
                 last_print = Instant::now();
                 continue
             }
+            // remove the front item
+            _ = decidable_buffer.pop_front();
+            // add the new db
+            _ = decidable_buffer.push_back(db_level);
 
-            _ = decidable_buffer.remove();
-            _ = decidable_buffer.add(db_level);
-
+            // calculate the new decible average
             let sum: f32 = decidable_buffer.iter().sum();
             let avg_decidable =  sum / decidable_buffer.len() as f32;
 
 
-
+            // decide if the robot should relax the motor or fire
             // execute robot if we are +/- 20 outside the selected decidable range
             let go_robot = avg_decidable.abs() > base_line_average.abs() + safe_range ||
                 avg_decidable.abs() < base_line_average.abs() - safe_range;
-            if go_robot {
-                fire_robot();
-            } else {
-                release_robot();
+            // if it is deployed run the pi centric code
+            if ON_PI == true{
+                if go_robot {
+                    fire_robot();
+                } else {
+                    release_robot();
+                }
             }
-
+            // this is the final debug message
             println!(
-                "Current decibel level: {:.2} dB\nBase line decibel: {:.2}\nExecute Robot: {},\nSize of Sample {}",
+                "Current decibel level: {:.2} dB\nBase line decibel: {:.2}\nExecute Robot: {},\nSize of Sample {}\n\n\n\n",
                 db_level,
                 base_line_average,
                 go_robot,
                 base_line_container.len()
             );
-            last_print = Instant::now();
+            last_print = Instant::now(); // update the last request time
         }
 
         std::thread::sleep(Duration::from_millis(10));
@@ -143,4 +159,18 @@ fn process_input(data: &[f32], channels: usize, _sample_rate: f32, max_amplitude
     }
     let mut amplitude = max_amplitude.lock().unwrap();
     *amplitude = max;
+}
+
+fn calculate_variance(data: Vec<f32>, mean: f32) -> f32 {
+    let count = data.len();
+
+    if count > 0 {
+        let variance: f32 = data.iter().map(|value| {
+            let diff = mean - *value;
+            diff * diff
+        }).sum();
+        variance / count as f32
+    } else {
+        0.0
+    }
 }
