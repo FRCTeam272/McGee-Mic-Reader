@@ -157,11 +157,19 @@ fn setup_pi() -> pi::Motor{
     };
     return test ;
     */
-
-    match (pi::Motor::new(13,24)) {
-        Ok(motor) => motor,
-        Err(e) => pi::Motor::new(12,26)
+    fn try_create(forward: u8, backward: u8) -> Result<Motor, String>{
+        match pi::Motor::new(forward, backward) {
+            Ok(motor) => Ok(motor),
+            Err(e) => Err(format!("{} {} incorrect pairing", forward, backward))
+        }
     }
+
+    let motor = try_create(13, 24);
+    if motor.is_err(){
+        let motor = try_create(12, 26);
+        return motor.unwrap();
+    }
+    return motor.unwrap();
 }
 fn fire_robot(){
     // TODO: Lockdown this Pin
