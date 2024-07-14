@@ -4,11 +4,12 @@ use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use dasp::sample::{Sample};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
+use log::error;
 
 const ON_PI: bool = false;
 
 fn main() {
-
+    setup_pi();
     // grab the default audio devices
     let host = cpal::default_host();
     let device = host.default_input_device().expect("Failed to get default input device");
@@ -67,6 +68,8 @@ fn main() {
 
     let mut decidable_buffer: VecDeque<f32> = VecDeque::new(); // holds and updates the last 10, so we know to go when good
     let mut safe_range = 0.0; // safe range is +/- std of the baseline and is calculated later
+    let mut bounce_inputs: usize = 0;
+    const MAX_BOUNCE_SIZE: usize = 2;
     loop {
         // audio math I guess
         let amplitude = *max_amplitude.lock().unwrap();
@@ -118,7 +121,13 @@ fn main() {
             // if it is deployed run the pi centric code
             if ON_PI == true{
                 if go_robot {
-                    fire_robot();
+                    if(bounce_inputs < MAX_BOUNCE_SIZE){
+                        fire_robot();
+                        bounce_inputs += 1;
+                    } else {
+                        bounce_inputs = 0;
+                        release_robot();
+                    }
                 } else {
                     release_robot();
                 }
@@ -138,15 +147,24 @@ fn main() {
     }
 }
 
+fn setup_pi() -> pi::Motor{
+    // let test_result: pi::Motor = pi::Motor::new(13, 24);
+    let test = match pi::Motor::new(13, 24) {
+        Ok(motor) => motor,
+        Err(e) => pi::Motor::new(12, 26)
+    };
+    return test;
+}
+
 fn fire_robot(){
     // TODO: Lockdown this Pin
-    let mut motor = pi::Motor::new(0, 0);
+    let mut motor = setup_pi();
     motor.set_speed(0.2);
 }
 
 fn release_robot(){
     // TODO: Lockdown this Pin
-    let mut motor = pi::Motor::new(0, 0);
+    let mut motor = setup_pi();
     motor.stop();
 }
 
