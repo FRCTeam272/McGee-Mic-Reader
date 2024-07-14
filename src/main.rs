@@ -149,14 +149,20 @@ fn main() {
 }
 
 fn setup_pi() -> pi::Motor{
-    // let test_result: pi::Motor = pi::Motor::new(13, 24);
-    let test = match pi::Motor::new(13, 24) {
-        Ok(motor) => Ok(motor),
-        Err(e) => Ok(pi::Motor::new(12, 26))
+    /*
+    let test_result: Result<Err, pi::Motor> = pi::Motor::new(13, 24).;
+    let test = match test_result {
+        Ok(motor) => pi::Motor::new(13, 24),
+        Err(e) => pi::Motor::new(12, 26)
     };
-    return test as Motor;
-}
+    return test ;
+    */
 
+    match (pi::Motor::new(13,24)) {
+        Ok(motor) => motor,
+        Err(e) => pi::Motor::new(12,26)
+    }
+}
 fn fire_robot(){
     // TODO: Lockdown this Pin
     let mut motor = setup_pi();
