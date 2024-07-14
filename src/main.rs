@@ -5,6 +5,7 @@ use dasp::sample::{Sample};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use log::error;
+use rust_gpiozero::Motor;
 
 const ON_PI: bool = false;
 
@@ -150,10 +151,10 @@ fn main() {
 fn setup_pi() -> pi::Motor{
     // let test_result: pi::Motor = pi::Motor::new(13, 24);
     let test = match pi::Motor::new(13, 24) {
-        Ok(motor) => motor,
-        Err(e) => pi::Motor::new(12, 26)
+        Ok(motor) => Ok(motor),
+        Err(e) => Ok(pi::Motor::new(12, 26))
     };
-    return test;
+    return test as Motor;
 }
 
 fn fire_robot(){
