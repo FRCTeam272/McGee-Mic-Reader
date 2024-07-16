@@ -9,10 +9,12 @@ AN1 = 12
 DIG2 = 24
 DIG1 = 26
 
-motor = GPIO.PWM(AN1, GPIO.HIGH)
+motor = ''
+setup_has_run = False
 
 def configure_Pi():
     global motor
+    global setup_has_run
     GPIO.setmode(GPIO.BCM)
     GPIO.setwarnings(False)
     GPIO.setup(AN2, GPIO.OUT)
@@ -23,11 +25,16 @@ def configure_Pi():
         motor = GPIO.PWM(AN1, GPIO.HIGH)
     except:
         motor = GPIO.PWM(AN2, GPIO.HIGH)
+    setup_has_run = True
 
 def go_forward():
     global motor
+    if setup_has_run == False:
+        configure_Pi()
     motor.start(power)
 
 def stop():
     global motor
+    if setup_has_run == False:
+        configure_Pi()
     motor.start(0)

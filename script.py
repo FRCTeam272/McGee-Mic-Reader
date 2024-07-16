@@ -9,6 +9,7 @@ buffer_min = config['buffer_min']
 
 
 if __name__ == '__main__':
+    motor.configure_Pi()
     base_line = sound.read_decibel_levels(44100, 10)
     buffer = 0
     print("starting life capture")
