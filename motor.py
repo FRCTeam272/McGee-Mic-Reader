@@ -1,4 +1,8 @@
 import RPi.GPIO as GPIO
+import yaml
+config = yaml.safe_load(open("config.yaml"))
+
+power = config['motor_power']
 
 AN2 = 13
 AN1 = 12
@@ -22,7 +26,7 @@ def configure_Pi():
 
 def go_forward():
     global motor
-    motor.start(100)
+    motor.start(power)
 
 def stop():
     global motor
