@@ -20,6 +20,7 @@ if __name__ == '__main__':
             if result > decible_diff and buffer < buffer_min:
                 print(f"Noise detected {time.time()}")
                 motor.go_forward()
+                buffer += 1
             else:
                 print(f"Reseting buffer: {buffer}")
                 motor.stop()
