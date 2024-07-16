@@ -9,7 +9,7 @@ AN1 = 12
 DIG2 = 24
 DIG1 = 26
 
-motor = ''
+motor = GPIO.PWM(AN1, GPIO.HIGH)
 
 def configure_Pi():
     global motor
