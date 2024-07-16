@@ -29,12 +29,16 @@ def configure_Pi():
 
 def go_forward():
     global motor
-    if setup_has_run == False:
+    try:
+        motor.start(power)
+    except:
         configure_Pi()
-    motor.start(power)
+        motor.start(power)
 
 def stop():
     global motor
-    if setup_has_run == False:
+    try:
+        motor.start(0)
+    except:
         configure_Pi()
-    motor.start(0)
+        motor.start(0)
