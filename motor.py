@@ -10,8 +10,6 @@ DIG2 = 24
 DIG1 = 26
 
 motor = ''
-setup_has_run = False
-
 def configure_Pi():
     global motor
     global setup_has_run
@@ -22,10 +20,9 @@ def configure_Pi():
     GPIO.setup(DIG2, GPIO.OUT)
     GPIO.setup(DIG1, GPIO.OUT)
     try:
-        motor = GPIO.PWM(AN1, GPIO.HIGH)
-    except:
         motor = GPIO.PWM(AN2, GPIO.HIGH)
-    setup_has_run = True
+    except:
+        motor = GPIO.PWM(AN1, GPIO.HIGH)
 
 def go_forward():
     global motor

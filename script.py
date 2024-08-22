@@ -9,7 +9,10 @@ buffer_min = config['buffer_min']
 
 
 if __name__ == '__main__':
+    print(config)
+    print("configuring the pi motor")
     motor.configure_Pi()
+    print("configuring baseline of 10 secs")
     base_line = sound.read_decibel_levels(44100, 10)
     buffer = 0
     print("starting life capture")
