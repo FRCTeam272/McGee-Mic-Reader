@@ -3,7 +3,7 @@ import yaml
 config = yaml.safe_load(open("config.yaml"))
 
 power = config['motor_power']
-
+hello
 AN2 = 13
 AN1 = 12
 DIG2 = 24
