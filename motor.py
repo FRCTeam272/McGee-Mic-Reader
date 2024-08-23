@@ -11,10 +11,10 @@ def configure_Pi():
     mc.disable_crc()
     mc.clear_reset_flag()
     try:
-        mc.set_motor_power(port, 0)
+        mc.set_speed(port, 0)
     except:
         port = 2
-        mc.set_motor_power(port, 0)
+        mc.set_speed(port, 0)
     
         
     mc.set_max_acceleration(port, 140)
@@ -22,14 +22,14 @@ def configure_Pi():
         
 def go_forward():
     try:
-        mc.set_motor_speed(port, 100)
+        mc.set_speed(port, 100)
     except:
         configure_Pi()
         go_forward()
 
 def stop():
     try:
-        mc.set_motor_speed(port, 0)
+        mc.set_speed(port, 0)
     except:
         configure_Pi()
         stop()
