@@ -1,3 +1,3 @@
 decible_diff: 2
 buffer_min: 5
-motor_power: 15 # this should be 100 for deployment
+motor_power: -800 # this should be 800 for deployment

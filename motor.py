@@ -1,7 +1,17 @@
+import yaml
 import motoron.motoron
 
+def read_config(file_path: str):
+    with open(file_path, 'r') as file:
+        config = yaml.safe_load(file)
+    return config
+
+motor_power = read_config('config.yaml')['motor_power']
 mc = None
-port = 1
+
+def set_speed(speed: int):
+    mc.set_speed(1, speed)
+    mc.set_speed(2, speed)
 
 def configure_Pi():
     global mc
@@ -10,26 +20,27 @@ def configure_Pi():
     mc.reinitialize()
     mc.disable_crc()
     mc.clear_reset_flag()
-    try:
-        mc.set_speed(port, 0)
-    except:
-        port = 2
-        mc.set_speed(port, 0)
-    
         
-    mc.set_max_acceleration(port, 140)
-    mc.set_max_deceleration(port, 300)
+    mc.set_max_acceleration(1, 140)
+    mc.set_max_deceleration(1, 300)
+
+
+    mc.set_max_acceleration(2, 140)
+    mc.set_max_deceleration(2, 300)
+
+    set_speed(0)
+    
         
 def go_forward():
     try:
-        mc.set_speed(port, 100)
+        set_speed(motor_power)
     except:
         configure_Pi()
         go_forward()
 
 def stop():
     try:
-        mc.set_speed(port, 0)
+        set_speed(0)
     except:
         configure_Pi()
         stop()
