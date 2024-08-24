@@ -32,7 +32,7 @@ sudo shutdown -r -t 0
 
 ## Executing
 
-to actually run the application use `python script.py`
+to actually run the application use `chmod +x execute.sh && ./execute.sh`
 
 I'd recommend setting it as a boot program  as well
 follow [this guide](https://www.dexterindustries.com/howto/run-a-program-on-your-raspberry-pi-at-startup/) 
