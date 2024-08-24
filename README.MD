@@ -40,7 +40,13 @@ to configure your pi I'd recommend the rc.local method
 
 ## Electronics
 
-@Todo this section is coming as the project progresses
+We used a [Raspberry Pi 4b](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) as the computer, it should be noted that this software should work on any modern pi system
+
+We also used a [Motoron M2H18v18 Dual High-Power Motor Controller for Raspberry Pi (No Connectors or Standoffs)](https://www.pololu.com/product/5050) from Pololu which slides right onto the pi
+
+we run power through a 12 volt ac adapter into the Motoron Controller, and then run power from the motor control to an [FRC BAG Motor](https://www.vexrobotics.com/217-3351.html) 
+
+the software will read from 1 and only 1 usb connected micrphone (decided at startup) when the user hits over a deciable level the motor will spin and the whatever it is rigged to (a drum pedal)
 
 ## Using
 
