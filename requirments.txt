@@ -1,0 +1,7 @@
+cffi==1.16.0
+numpy==2.0.0
+pyaml==24.4.0
+pycparser==2.22
+PyYAML==6.0.1
+RPi.GPIO==0.7.1
+sounddevice==0.4.7

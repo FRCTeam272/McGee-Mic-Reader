@@ -1,0 +1,3 @@
+decible_diff: 2
+buffer_min: 5
+motor_power: -800 # this should be 800 for deployment
