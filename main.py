@@ -15,8 +15,6 @@ print("motor test power off")
 motor.stop()
 time.sleep(2)
 print("end motor test")
-exit()
-
 
 if __name__ == '__main__':
     print(config)
