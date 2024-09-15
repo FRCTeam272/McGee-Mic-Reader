@@ -1,56 +1,34 @@
-import yaml
-import motoron.motoron
+import RPi.GPIO as GPIO
 
-def read_config(file_path: str):
-    with open(file_path, 'r') as file:
-        config = yaml.safe_load(file)
-    return config
+# left as variables for documentation
+CH1 = 26
+CH2 = 20
+CH3 = 21
 
-motor_power = read_config('config.yaml')['motor_power']
-mc = None
-
-def set_speed(speed: int):
-    mc.set_speed(1, speed)
-    mc.set_speed(2, speed)
+# give me an array that I can loop over
+CHANNELS = [CH1, CH2, CH3]
 
 def configure_Pi():
-    global mc
-    global port
-    mc = motoron.motoron.MotoronI2C()
-    mc.reinitialize()
-    # mc.disable_crc()
-    mc.clear_reset_flag()
-        
-    mc.set_max_acceleration(1, 1000000)
-    mc.set_max_deceleration(1, 1)
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+    for channel in CHANNELS:
+        GPIO.setup(channel, GPIO.OUT)
 
-
-    mc.set_max_acceleration(2, 1000000)
-    mc.set_max_deceleration(2, 1)
-
-    set_speed(0)
-    
-        
-def go_forward():
-    try:
-        mc.set_all_speeds(motor_power, motor_power)
-        # set_speed(motor_power)
-    except:
-        print("Resetting Pi")
-        configure_Pi()
-        go_forward()
-
+    pass        
 def stop():
-    try:
-        mc.set_all_speeds(0, 0)
-        # set_speed(0)
-    except:
-        print("Resetting Pi")
-        configure_Pi()
-        stop()
-
+    for channel in CHANNELS:
+        control(channel, GPIO.LOW)
+def go_forward():
+    for channel in CHANNELS:
+        control(channel, GPIO.HIGH)
+def control(channel, source):
+    print(f"Turning {channel} to {source}")
+    GPIO.output(channel, source)
+    
 if __name__ == '__main__':
+    import time
     configure_Pi()
     go_forward()
+    time.sleep(5)
     stop()
-    pass
+    print("exited successfully")

@@ -10,7 +10,7 @@ buffer_min = config['buffer_min']
 motor.configure_Pi()
 print("motor test power on")
 motor.go_forward()
-time.sleep(.5)
+time.sleep(.1)
 print("motor test power off")
 motor.stop()
 time.sleep(2)
