@@ -18,30 +18,34 @@ def configure_Pi():
     global port
     mc = motoron.motoron.MotoronI2C()
     mc.reinitialize()
-    mc.disable_crc()
+    # mc.disable_crc()
     mc.clear_reset_flag()
         
-    mc.set_max_acceleration(1, 140)
-    mc.set_max_deceleration(1, 300)
+    mc.set_max_acceleration(1, 1000000)
+    mc.set_max_deceleration(1, 1)
 
 
-    mc.set_max_acceleration(2, 140)
-    mc.set_max_deceleration(2, 300)
+    mc.set_max_acceleration(2, 1000000)
+    mc.set_max_deceleration(2, 1)
 
     set_speed(0)
     
         
 def go_forward():
     try:
-        set_speed(motor_power)
+        mc.set_all_speeds(motor_power, motor_power)
+        # set_speed(motor_power)
     except:
+        print("Resetting Pi")
         configure_Pi()
         go_forward()
 
 def stop():
     try:
-        set_speed(0)
+        mc.set_all_speeds(0, 0)
+        # set_speed(0)
     except:
+        print("Resetting Pi")
         configure_Pi()
         stop()
 

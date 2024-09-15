@@ -7,14 +7,15 @@ config = yaml.safe_load(open("config.yaml"))
 decible_diff = config['decible_diff']
 buffer_min = config['buffer_min']
 
-
+motor.configure_Pi()
 print("motor test power on")
 motor.go_forward()
-time.sleep(1)
+time.sleep(.5)
 print("motor test power off")
 motor.stop()
 time.sleep(2)
 print("end motor test")
+exit()
 
 if __name__ == '__main__':
     print(config)
