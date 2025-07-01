@@ -11,6 +11,9 @@ imu = IMU()
 imu.connect()
 imu.start()
 
+def trigger():
+    return imu.get_acceleration() > 20
+
 print("IMU connected and started.")
 while True:
     try:
