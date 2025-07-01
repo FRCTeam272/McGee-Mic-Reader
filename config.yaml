@@ -1,3 +1,4 @@
 decible_diff: 2
 buffer_min: 5
 motor_power: -80000000000 # this should be 800 for deployment
+bluetooth_address: "fe:f7:97:a3:24:e5" # replace with your device's Bluetooth address
